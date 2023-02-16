@@ -1,0 +1,96 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: sans-serif;
+	font-size: 16px;
+	overflow: hidden;
+}
+
+canvas {
+	background-color: #000000;
+}
+
+.logo.top {
+	top: 0;
+}
+
+.logo.left {
+	left: 0;
+}
+
+#badges {
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+	pointer-events: none;
+}
+
+#badges.jam {
+	bottom: 50px;
+}
+
+#badges.right {
+	right: 10px;
+	left: auto;
+}
+
+#badges.top {
+	top: 10px;
+	bottom: auto;
+}
+
+#badges.top.jam {
+	top: 50px;
+}
+
+.lockup {
+	position: absolute;
+	border-radius: 3px;
+	padding: 3px;
+	background: #000;
+	transform: translateY(-100%);
+	right: 6px;
+	white-space: nowrap;
+	display: none;
+}
+
+.lockup.show {
+	display: block;
+}
+
+.lockup::before {
+	content: "";
+	width: 16px;
+	height: 16px;
+	position: absolute;
+	left: 50%;
+	top: 100%;
+	transform: translateY(-3px) translateX(-50%) rotate(180deg);
+	width: 0;
+	height: 0;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	border-bottom: 8px solid #000;
+}
+
+.logo.top .lockup {
+	top: 100%;
+	transform: translateX(0);
+}
+
+.logo.top .lockup::before {
+	top: 0;
+	transform: translateX(-50%) translateY(-100%);
+}
+
+.logo.white .lockup {
+	background-color: white;
+}
+
+.logo.white .lockup::before {
+	border-bottom-color: #fff;
+}
+
+.logo.white .lib {
+	color: black;
+}

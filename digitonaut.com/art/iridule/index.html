@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from digitonaut.com/art/iridule/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 16 Feb 2023 10:27:21 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+<meta charset='utf-8'\>
+<meta name='apple-mobile-web-app-capable' content='yes'><meta name='apple-mobile-web-app-status-bar-style' content='black-translucent'><title>Iridule</title>
+
+<link type="text/css" rel="stylesheet" href="main.css">
+</head>
+<body>
+
+<script id="vs" type="not-js">
+void main()	{
+  gl_Position = vec4( position, 1.0 );
+}
+</script>
+<script id="fs" type="not-js">
+precision mediump float;
+
+// -------------------------------------------- code from https://glslsandbox.com/ ------------------
+/* - ~ iridule ~ */
+
+#ifdef GL_ES
+precision mediump float;
+#endif
+#extension GL_OES_standard_derivatives : enable
+
+uniform float time;
+uniform vec2 resolution;
+uniform vec2 mouse;
+
+vec2 iResolution;
+float iTime;
+
+mat3 rotateZ(float a) {
+	return mat3(
+    	cos(a), sin(a), 0.0,
+        -sin(a), cos(a), 0.0,
+        0.0, 0.0, 1.0
+    );
+}
+
+#define MD 4.
+#define repeat(v) mod(p + MD / 2., MD) - MD / 2.;
+void mainImage(out vec4 O, in vec2 I) {
+    	vec2 R = iResolution.xy;
+	vec2 uv = (2. * I - R) / R.y;	
+	uv.xy = (rotateZ(iTime / 5.) * vec3(uv, 1.)).xy;
+	vec3 o = vec3(50., -10., iTime), d  = vec3(uv, 1.), p;
+	float t = 0.;
+	vec3 color;
+	for (int i = 0; i < 32; i++) {
+		
+		p = o + d * t;
+		vec3 q = normalize(p);
+		//color += vec3(1., 1., 1. / 6. * float(i));
+		p.y *= .01;
+		p = repeat(p);
+		
+			
+		float a  = length(p) - (
+			.3 * (.5 + sin(20. * iTime + p.y * 1100.) * .5)
+		);
+	
+		p = o + d * t;
+		p.x *= .01;
+		p = repeat(p);
+		
+		float b = length(p) - (
+			.3 * (.5 + sin(iTime + p.y) * .5)
+			//.3 * (.5 + sin(p.x * 10. + iTime) * .5)
+			//sin(mod(p.x * 256. * mouse.x, 64.))
+		);
+		
+		float c = min(a, b);
+		color += vec3(t / 5., 1. - b, .8 * a);
+		t += (.3 * c);
+	}
+	color /= 32.;
+	float l =  3. * dot(normalize(o - p), d);
+	O = vec4(color * l  * vec3(1. / t), 1.);
+}
+	
+void main(void) {
+	iResolution = resolution;
+	iTime = time;
+	mainImage(gl_FragColor, gl_FragCoord.xy);
+}
+
+
+// -------------------------------------------------------------------------------------------------------------------
+
+</script>
+<script src="three.min.js"></script>
+<script src="main.js"></script>
+
+</body>
+
+<!-- Mirrored from digitonaut.com/art/iridule/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 16 Feb 2023 10:27:28 GMT -->
+</html>

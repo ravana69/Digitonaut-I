@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from digitonaut.com/art/in_the_depths/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 16 Feb 2023 10:26:18 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+<meta charset='utf-8'\>
+<meta name='description' content=''/>
+<meta name='apple-mobile-web-app-capable' content='yes'><meta name='apple-mobile-web-app-status-bar-style' content='black-translucent'><title>In The Depths</title>
+
+<link type="text/css" rel="stylesheet" href="main.css">
+</head>
+<body>
+
+<script id="vs" type="not-js">
+void main()	{
+  gl_Position = vec4( position, 1.0 );
+}
+</script>
+<script id="fs" type="not-js">
+precision mediump float;
+
+// -------------------------------------------- code from https://glslsandbox.com/ ------------------
+// 180620N)ecip's first live form: GENESIS ONE
+// 200620N - today is magic day :) 
+//			in the depths of the dark ocean lives a creature made of light ...
+
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+#extension GL_OES_standard_derivatives : enable
+
+uniform float time;
+uniform vec2 mouse;
+uniform vec2 resolution;
+
+
+
+#define iTime time
+#define iResolution resolution
+
+#define TAU 6.28318530718
+#define MAX_ITER 5
+
+vec3 mainImage( in vec2 fragCoord )
+{
+    float time = iTime * 0.2 + 23.0;
+    vec2 uv = fragCoord.xy / iResolution.xy;
+
+    vec2 p = mod(uv * TAU, TAU) - 250.0;
+    vec2 i = vec2(p);
+    float c = 1.0;
+    float inten = 0.005;
+
+    for (int n = 0; n < MAX_ITER; n++) {
+        float t = time * (1.0 - (3.5 / float(n + 1)));
+        i = p + vec2(cos(t - i.x) + sin(t + i.y), sin(t - i.y) + cos(t + i.x));
+        c += 1.0 / length(vec2(p.x / (sin(i.x + t) / inten), p.y / (cos(i.y + t) / inten)));
+    }
+
+    c /= float(MAX_ITER);
+    c = 1.17-pow(c, 1.4);
+    vec3 colour = vec3(pow(abs(c), 8.0));
+    //colour = clamp(colour + vec3(0.0, 0.0, 0.0), 0.0, 1.0);
+
+    return vec3(colour);// + texture(iChannel0,uv);
+}
+
+
+float render( vec2 position, vec2 offset ) {
+
+	vec3 color = vec3(0.0);
+	vec2 p = position * 2.0 - 1.0;
+	p *= 3.;
+	float k = 0.0;
+	
+	for (int i =0; i < 16; i++) {
+		
+		p = vec2((p.y * p.y - p.x * p.x) * 0.5, (p.y * p.x)) - offset;
+		// k += 0.06;
+		vec3 c = mainImage(p); 
+		k += c.x*c.y*c.z;
+		if (dot(p, p) > 10.0) {
+			break;
+		}
+
+	}
+
+	return k;
+
+}
+
+
+
+
+void main( void ) {
+	vec2 _position = (gl_FragCoord.xy) / min(resolution.x, resolution.y);
+	_position *= 2.;
+	
+	vec2 position = _position;
+	position.x = -0.5 + _position.x + 0.5*sin(0.1*time);
+	position.y = -0.5 + _position.y + 0.5*cos(0.1*time);
+	position.x *= 1. - .1*sin(time);
+	position.y *= 1. - .1*sin(time);
+	
+	// gl_FragColor += vec4(mainImage(gl_FragCoord.xy), 1.0);
+		
+	for(float i=0.0;i<=0.3;i+=0.1) {
+	gl_FragColor += vec4(render(position+i, vec2(1. + sin(8.*time) / 16., 1. + cos(8.*time) / 16.)), 
+			    render(position+i*.3, vec2(2. + sin(8.*time) / 16., 2. + cos(8.*time) / 16.)), 
+			    render(position+i*.2, vec2(3. + sin(8.*time) / 16., 3. + cos(8.*time) / 16.)), 
+			    1.);
+	}	
+
+}
+
+
+
+// -------------------------------------------------------------------------------------------------------------------
+
+</script>
+<script src="three.min.js"></script>
+<script src="main.js"></script>
+
+</body>
+
+<!-- Mirrored from digitonaut.com/art/in_the_depths/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 16 Feb 2023 10:26:19 GMT -->
+</html>

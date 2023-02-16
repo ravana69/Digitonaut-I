@@ -1,0 +1,7 @@
+html, body {
+  background-color:#020;
+}
+canvas {
+  background-color:#020;
+  cursor: pointer;
+}

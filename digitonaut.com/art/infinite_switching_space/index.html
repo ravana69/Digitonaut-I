@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from digitonaut.com/art/infinite_switching_space/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 16 Feb 2023 10:26:31 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=UTF-8" /><!-- /Added by HTTrack -->
+<head>
+<meta charset='utf-8'\>
+<meta name='apple-mobile-web-app-capable' content='yes'><meta name='apple-mobile-web-app-status-bar-style' content='black-translucent'><title>Infinite Switching Space</title>
+
+<link type="text/css" rel="stylesheet" href="main.css">
+</head>
+<body>
+
+<script id="vs" type="not-js">
+void main()	{
+  gl_Position = vec4( position, 1.0 );
+}
+</script>
+<script id="fs" type="not-js">
+precision mediump float;
+
+// -------------------------------------------- code from https://glslsandbox.com/ ------------------
+
+/*
+ * Original shader from: https://www.shadertoy.com/view/WltyDH
+ */
+
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+// glslsandbox uniforms
+uniform float time;
+uniform vec2 resolution;
+
+// shadertoy emulation
+#define iTime time
+#define iResolution resolution
+
+// --------[ Original ShaderToy begins here ]---------- //
+const float pi2 = acos(-1.)*2.;
+
+mat2 rotate(float a) {
+	return mat2(cos(a), -sin(a), sin(a), cos(a));
+}
+
+float smoothFloor(float x, float s) {
+	return floor(x-.5)+smoothstep(.5-s, .5+s, fract(x-.5));
+}
+
+float rand(float x) {
+	float r = fract(sin(x)*43758.5453);
+	float t = smoothFloor(iTime, .2);
+	r = sin(r*pi2 + t)*.5+.5;
+	return r;
+}
+
+float noise(vec3 x) {
+	vec3 p = floor(x);
+	vec3 f = fract(x);
+	f = f*f*(3.-2.*f);
+	vec3 b = vec3(173, 61, 3);
+	float n = dot(p, b);
+	return mix(    mix(	   mix(rand(n), rand(n+b.x), f.x),
+                           mix(rand(n+b.y), rand(n+b.x+b.y), f.x),
+                           f.y),
+                   mix(    mix(rand(n+b.z), rand(n+b.x+b.z), f.x),
+                           mix(rand(n+b.y+b.z), rand(n+b.x+b.y+b.z), f.x),
+                           f.y),
+                   f.z);
+}
+
+float dist(vec3 p) {
+	float d = length(p.xy)-1.;
+	return max(noise(p)-.2, -d);
+}
+
+vec3 hsv2rgb(float h, float s, float v) {
+	vec3 res = fract(h+vec3(0,2,1)/3.);
+	res = abs(res*6.-3.)-1.;
+	res = clamp(res, 0., 1.);
+	res = (res-1.)*s+1.;
+	res *= v;
+	return res;
+}
+
+float exp2Fog(float d, float density) {
+	float s = d*density;
+	return exp(-s*s);
+}
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+	vec2 p = (fragCoord*2.-iResolution.xy) / min(iResolution.x, iResolution.y);
+	vec3 col = vec3(0);
+	
+	vec3 cPos = vec3(0, 0, -iTime*3.);
+	vec3 cDir = vec3(0.2, 0, -1);
+	cDir.xy *= rotate(iTime*.1);
+	
+	vec3 cUp = vec3(0, 1, 0);
+	cUp.xy *= rotate(iTime*-.1);
+	
+	vec3 cSide = cross(cDir, cUp);
+	vec3 ray = normalize(p.x*cSide + p.y*cUp + cDir*2.5);
+	
+	float d = 0.;
+	vec3 rPos = cPos;
+	for(int i=0; i<150; i++) {
+		d = dist(rPos);
+		if(abs(d) < 0.01) {
+			float r = noise(rPos+vec3(10));
+			vec3 base = hsv2rgb(r*.3+floor(iTime)*pi2, .5, 1.);
+			col = base/float(i)*20.;
+			break;
+		}
+		rPos += ray*d;
+	}
+	float fog = exp2Fog(length(rPos-cPos), 0.03);
+	col = mix(vec3(1), col, fog);
+	
+	fragColor = vec4(col, 1.);
+}
+// --------[ Original ShaderToy ends here ]---------- //
+
+void main(void)
+{
+    mainImage(gl_FragColor, gl_FragCoord.xy);
+}
+// -------------------------------------------------------------------------------------------------------------------
+
+</script>
+<script src="three.min.js"></script>
+<script src="main.js"></script>
+
+</body>
+
+<!-- Mirrored from digitonaut.com/art/infinite_switching_space/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 16 Feb 2023 10:26:32 GMT -->
+</html>
